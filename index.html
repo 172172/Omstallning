@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carlsberg Omställningsschema</title>
+
+  <!-- Inkludera Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Inkludera Font Awesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #1f1f1f;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+      padding: 20px;
+      background-color: #2a2a2a;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+      display: none; /* Gömmer alla sektioner från början */
+    }
+
+    h1 {
+      text-align: center;
+      color: #fff;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      background-color: #444;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 18px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: #555;
+      transform: scale(1.05);
+    }
+
+    .status-explanation {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 20px;
+      background-color: #2a2a2a;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .status-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-left: 10px;
+    }
+
+    .status-circle.status-green {
+      background-color: #28a745;
+    }
+
+    .status-circle.status-orange {
+      background-color: #ff9800;
+    }
+
+    .status-circle.status-red {
+      background-color: #dc3545;
+    }
+
+    .checklist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      margin-bottom: 10px;
+      background-color: #333;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .status-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .status-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .status-button.active {
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    }
+
+    .status-button.status-green {
+      background-color: #28a745;
+    }
+
+    .status-button.status-orange {
+      background-color: #ff9800;
+    }
+
+    .status-button.status-red {
+      background-color: #dc3545;
+    }
+
+    .comment-section {
+      margin-top: 10px;
+      display: none;
+    }
+
+    .comment-section textarea {
+      width: 80%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      background-color: #444;
+      color: #fff;
+      resize: none;
+      height: 50px;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .hidden-tasks {
+      display: none;
+      margin-left: 20px;
+      padding-top: 10px;
+    }
+
+    h2 {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+
+    .visible {
+      display: block !important; /* Gör sektionen synlig när den behövs */
+    }
+
+    .comment-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      color: #fff;
+      margin-left: auto;
+      transition: transform 0.2s;
+    }
+
+    .comment-icon:hover {
+      transform: scale(1.2);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+  background-color: #2a2a2a; /* Mörk bakgrundsfärg för professionellt utseende */
+  color: #fff; /* Vit textfärg för tydlighet */
+  margin: auto;
+  padding: 20px;
+  border: none;
+  width: 80%;
+  max-width: 500px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Snygg skugga för djup */
+  font-family: 'Montserrat', sans-serif; /* Proffsigare font */
+}
+
+#modal-text {
+  font-size: 18px; /* Större text för bättre läsbarhet */
+  line-height: 1.5; /* Bra radavstånd för att göra texten luftigare */
+  font-weight: 500; /* Halvfet text för tydlighet */
+}
+
+.close {
+  color: #fff; /* Vit stängningsknapp */
+  float: right;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: #f44336; /* Röd färg när man hovrar för uppmärksamhet */
+}
+.time-week {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 20px;
+  color: #f5f5f5;
+  background-color: rgba(0, 0, 0, 0.85);
+  padding: 10px 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease; /* Mjuka övergångar */
+}
+
+.time-week:hover {
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.2); /* När man hovrar för extra effekt */
+  transform: scale(1.05); /* Liten zoom-effekt vid hovring */
+}
+
+.time-week span {
+  margin-right: 15px;
+}
+
+.time-week .icon {
+  font-size: 24px;
+  color: #ffa500;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+#time-text, #week-text {
+  animation: fadeIn 0.5s ease-in-out; /* Animering för mjuk infade på text */
+}
+#current-team {
+  font-size: 20px;
+  line-height: 1.8;
+  color: #ffffff;
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  position: absolute;
+  top: 10px; /* Justera för hur långt från toppen du vill ha det */
+  left: 50%;
+  transform: translateX(-50%); /* Detta centrerar det horisontellt */
+  background-color: #222;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.shift-team h2 {
+  text-align: center;
+  font-size: 26px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.shift-team {
+  background-color: #222;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+  </style>
+</head>
+<body>
+<p id="current-team"></p>
+</div>
+
+
+  <!-- Modal för kommentarer -->
+  <div id="commentModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <p id="modal-text">Här kommer informationen att visas...</p>
+    </div>
+  </div>
+
+  <div id="time-week" class="time-week">
+    <span class="icon"><i class="fas fa-clock"></i></span>
+    <span id="time-text"></span>
+    <span id="week-text"></span>
+  </div>
+
+  <div class="container visible" id="startsida">
+    <h1>Checklista för Linje65</h1>
+    <div class="status-explanation">
+      <div class="status-item">
+        <span class="status-circle status-green"></span> Utfört utan avvikelser
+      </div>
+      <div class="status-item">
+        <span class="status-circle status-orange"></span> Utfört med avvikande resultat
+      </div>
+      <div class="status-item">
+        <span class="status-circle status-red"></span> Ej utfört
+      </div>
+    </div>
+    <button class="button" onclick="showPage('nuvarande_korning')">Aktuell Produktion och Omställning</button>
+    <button class="button" onclick="showPage('omstallning_val')">Omställning</button>
+  </div>
+
+  <div class="container" id="nuvarande_korning">
+    <h1>Aktuell Produktion och Omställning</h1>
+
+    <!-- Tapp -->
+    <div class="area-section">
+      <h2 onclick="toggleTasks('tapp-tasks', this)">
+        Tapp
+        <span class="status-circle" id="tapp-status-circle"></span>
+        <button class="comment-icon" id="tapp-comment-icon" style="display:none;" onclick="showCommentBubble('tapp')">📝</button>
+      </h2>
+      <div id="tapp-tasks" class="hidden-tasks">
+        <div class="checklist-item">
+          <span>Kontrollera ventil:</span>
+          <div class="status-buttons">
+            <button class="status-button status-green" onclick="selectStatus(this, 'green', 'tapp')"></button>
+            <button class="status-button status-orange" onclick="selectStatus(this, 'orange', 'tapp')"></button>
+            <button class="status-button status-red" onclick="selectStatus(this, 'red', 'tapp')"></button>
+          </div>
+        </div>
+      </div>
+      <div class="comment-section" id="tapp-comment" style="display: none;">
+        <textarea placeholder="Ange en kommentar för Tapp..." id="tapp-comment-text"></textarea>
+        <button class="send-button" onclick="submitComment('tapp')">Skicka</button>
+      </div>
+    </div>
+
+    <!-- Packen -->
+    <div class="area-section">
+      <h2 onclick="toggleTasks('packen-tasks', this)">
+        Packen
+        <span class="status-circle" id="packen-status-circle"></span>
+        <button class="comment-icon" id="packen-comment-icon" style="display:none;" onclick="showCommentBubble('packen')">📝</button>
+      </h2>
+      <div id="packen-tasks" class="hidden-tasks">
+        <div class="checklist-item">
+          <span>Kontrollera förpackningsband:</span>
+          <div class="status-buttons">
+            <button class="status-button status-green" onclick="selectStatus(this, 'green', 'packen')"></button>
+            <button class="status-button status-orange" onclick="selectStatus(this, 'orange', 'packen')"></button>
+            <button class="status-button status-red" onclick="selectStatus(this, 'red', 'packen')"></button>
+          </div>
+        </div>
+      </div>
+      <div class="comment-section" id="packen-comment" style="display: none;">
+        <textarea placeholder="Ange en kommentar för Packen..." id="packen-comment-text"></textarea>
+        <button class="send-button" onclick="submitComment('packen')">Skicka</button>
+      </div>
+    </div>
+
+    <!-- Depal-Pallastare -->
+    <div class="area-section">
+      <h2 onclick="toggleTasks('depal-pallastare-tasks', this)">
+        Depal-Pallastare
+        <span class="status-circle" id="depal-pallastare-status-circle"></span>
+        <button class="comment-icon" id="depal-comment-icon" style="display:none;" onclick="showCommentBubble('depal')">📝</button>
+      </h2>
+      <div id="depal-pallastare-tasks" class="hidden-tasks">
+        <div class="checklist-item">
+          <span>Kontrollera pallastaren:</span>
+          <div class="status-buttons">
+            <button class="status-button status-green" onclick="selectStatus(this, 'green', 'depal-pallastare')"></button>
+            <button class="status-button status-orange" onclick="selectStatus(this, 'orange', 'depal-pallastare')"></button>
+            <button class="status-button status-red" onclick="selectStatus(this, 'red', 'depal-pallastare')"></button>
+          </div>
+        </div>
+      </div>
+      <div class="comment-section" id="depal-comment" style="display: none;">
+        <textarea placeholder="Ange en kommentar för Depal-Pallastare..." id="depal-comment-text"></textarea>
+        <button class="send-button" onclick="submitComment('depal')">Skicka</button>
+      </div>
+    </div>
+
+    <button class="button" onclick="showPage('startsida')">Tillbaka till startsida</button>
+  </div>
+
+<script>
+    // Visa eller dölj uppgifter när man klickar på en station
+    function toggleTasks(taskId, sectionTitle) {
+        var taskSection = document.getElementById(taskId);
+        if (taskSection.style.display === "block") {
+            taskSection.style.display = "none";
+        } else {
+            taskSection.style.display = "block";
+        }
+    }
+
+    // Funktion för att markera status och hantera kommentarsfält
+    function selectStatus(button, status, stationId) {
+        var buttons = button.parentElement.querySelectorAll('.status-button');
+        buttons.forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+
+        var commentSection = document.getElementById(stationId + '-comment');
+        if (status === 'orange' || status === 'red') {
+            commentSection.style.display = 'block';
+        } else {
+            commentSection.style.display = 'none';
+        }
+        
+        // Uppdatera statuscirkeln för stationen
+        updateStationStatusCircle(stationId);
+    }
+
+    // Uppdatera statuscirkeln för varje station baserat på uppgifternas status
+    function updateStationStatusCircle(stationId) {
+        var tasks = document.querySelectorAll('#' + stationId + '-tasks .status-button');
+        var allGreen = true;
+        var anyOrange = false;
+
+        tasks.forEach(function(task) {
+            if (task.classList.contains('active')) {
+                if (task.classList.contains('status-red')) {
+                    allGreen = false;
+                } else if (task.classList.contains('status-orange')) {
+                    anyOrange = true;
+                    allGreen = false;
+                } else if (task.classList.contains('status-green')) {
+                    // Fortsätter om den är grön
+                } else {
+                    allGreen = false;
+                }
+            }
+        });
+
+        var statusCircle = document.getElementById(stationId + '-status-circle');
+        if (allGreen) {
+            statusCircle.style.backgroundColor = '#28a745'; // Grön cirkel
+        } else if (anyOrange) {
+            statusCircle.style.backgroundColor = '#ff9800'; // Orange cirkel
+        } else {
+            statusCircle.style.backgroundColor = '#dc3545'; // Röd cirkel
+        }
+    }
+
+    // Funktion för att uppdatera alla statuscirklar när sidan laddas
+    function updateAllStationStatusCircles() {
+        var stations = ['tapp', 'packen', 'depal-pallastare'];
+        stations.forEach(function(station) {
+            updateStationStatusCircle(station);
+        });
+    }
+
+    // Funktion för att skicka kommentaren och visa ikonen
+    function submitComment(stationId) {
+        var commentSection = document.getElementById(stationId + '-comment');
+        var commentText = document.getElementById(stationId + '-comment-text').value;
+        if (commentText.trim() !== "") {
+            var commentIcon = document.getElementById(stationId + '-comment-icon');
+            commentIcon.style.display = 'inline';
+            commentSection.style.display = 'none';
+        }
+    }
+
+    // Visa modal popup för kommentar
+    function showCommentBubble(stationId) {
+        var commentText = document.getElementById(stationId + '-comment-text').value;
+        var modal = document.getElementById("commentModal");
+        var modalText = document.getElementById("modal-text");
+        modalText.textContent = "Kommentar för " + stationId + ": " + commentText;
+        modal.style.display = "flex";
+    }
+
+    // Stäng modal
+    function closeModal() {
+        var modal = document.getElementById("commentModal");
+        modal.style.display = "none";
+    }
+
+    // Visa rätt sida
+    function showPage(pageId) {
+        document.querySelectorAll('.container').forEach(function(container) {
+            container.classList.remove('visible');
+        });
+        document.getElementById(pageId).classList.add('visible');
+    }
+
+    // Uppdatera tid och vecka
+    function updateTimeAndWeek() {
+        const now = new Date();
+        const time = now.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const start = new Date(now.getFullYear(), 0, 1);
+        const diff = now - start + ((start.getTimezoneOffset() - now.getTimezoneOffset()) * 60000);
+        const oneWeek = 604800000; // Millisekunder i en vecka
+        const week = Math.floor(diff / oneWeek) + 1; // +1 för att veckorna börjar på 1
+
+        document.getElementById('time-text').innerText = `Tid: ${time}`;
+        document.getElementById('week-text').innerText = `Vecka: ${week}`;
+    }
+
+    setInterval(updateTimeAndWeek, 1000);
+    updateTimeAndWeek();
+
+    // Uppdatera alla statuscirklar när sidan laddas
+    document.addEventListener("DOMContentLoaded", function() {
+        updateAllStationStatusCircles();
+    });
+// Team-information och skiftrotation (uppdaterad ordning)
+const teams = [
+  { name: 'Team Kevin', shifts: ['Eftermiddag', 'Natthelg', 'Ledig vecka', 'Förmiddag', 'Natt'] },
+  { name: 'Team A-K', shifts: ['Natt', 'Eftermiddag', 'Natthelg', 'Ledig vecka', 'Förmiddag'] },
+  { name: 'Team Simon', shifts: ['Natthelg', 'Ledig vecka', 'Förmiddag', 'Natt', 'Eftermiddag'] },
+  { name: 'Team Mats', shifts: ['Förmiddag', 'Natt', 'Eftermiddag', 'Natthelg', 'Ledig vecka'] },
+  { name: 'Team Nina', shifts: ['Ledig vecka', 'Förmiddag', 'Natt', 'Eftermiddag', 'Natt helg'] }
+];
+
+// Funktion för att få aktuella skift baserat på veckan
+function getTeamsForThisWeek() {
+  const startDate = new Date(2024, 0, 1);  // Startdatum för vecka 1 (kan justeras)
+  const currentDate = new Date();
+  const weekNumber = Math.floor(((currentDate - startDate) / (7 * 24 * 60 * 60 * 1000)) % 5);
+  
+  return teams.map(team => ({
+    name: team.name,
+    shift: team.shifts[weekNumber]
+  }));
+}
+
+// Funktion för att uppdatera och visa team för denna veckan
+function updateShiftTeams() {
+  const currentTeams = getTeamsForThisWeek();
+  const teamList = currentTeams.map(team => `<strong>${team.name}</strong> - ${team.shift}`).join('<br>');
+  
+  document.getElementById('current-team').innerHTML = teamList;
+}
+
+// Kör denna funktion när sidan laddas
+document.addEventListener("DOMContentLoaded", function() {
+  updateShiftTeams();
+});
+
+</script>
+
